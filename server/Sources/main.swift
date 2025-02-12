@@ -8,7 +8,7 @@ let app = Application(.development)
 
 // Настроим несколько маршрутов
 app.get { req in
-    return "Привет Котуня!"
+    return "Привет умничка!"
 }
 
 // Запуск приложения

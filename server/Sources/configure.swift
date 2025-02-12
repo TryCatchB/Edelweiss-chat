@@ -1,13 +1,18 @@
 import Vapor
+import Fluent
 import FluentPostgresDriver
 
-// Эта функция вызывается при запуске приложения
+
 public func configure(_ app: Application) throws {
-    // Устанавливаем подключение к базе данных PostgreSQL
+    // Настроим подключение к базе данных PostgreSQL с учетом последних версий
     app.databases.use(.postgres(
-        hostname: "localhost",  // Адрес сервера PostgreSQL
-        username: "postgres",   // Имя пользователя базы данных
-        password: "0000",   // Пароль (укажи свой)
-        database: "postgres"      // Имя базы данных
-    ), as: .psql)
+        configuration: SQLPostgresConfiguration(
+            hostname: "localhost",  // Адрес сервера PostgreSQL
+            port: 5432, // Порт
+            username: "postgres",   // Имя пользователя базы данных
+            password: "0000",       // Пароль
+            database: "postgres",    // Имя базы данных
+            tls: .prefer(try .init(configuration: .clientDefault))
+        )
+    ), as: .psql) // Подключаем как PostgreSQL
 }
