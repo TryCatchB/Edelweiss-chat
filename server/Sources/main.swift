@@ -1,15 +1,12 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
-
 import Vapor
 
-// Создание экземпляра приложения
 let app = Application(.development)
+defer { app.shutdown() }
 
-// Настроим несколько маршрутов
-app.get { req in
-    return "Привет умничка!"
+do {
+    try configure(app)
+    try app.run()
+} catch {
+    app.logger.report(error: error)
+    fatalError("Ошибка запуска: \(error)")
 }
-
-// Запуск приложения
-try app.run()
