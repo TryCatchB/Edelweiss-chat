@@ -2,25 +2,17 @@ import Vapor
 import Fluent
 import FluentPostgresDriver
 
-public func configure(_ app: Application) async throws {
-    // Настроим подключение к базе данных PostgreSQL
-    app.databases.use(
-        .postgres(
-            hostname: "localhost",  // Адрес сервера PostgreSQL
-            port: 5432,             // Порт
-            username: "postgres",   // Имя пользователя базы данных
-            password: "0000",       // Пароль
-            database: "postgres"   // Имя базы данных
-        ),
-        as: .psql
-    )
-    
-    // Регистрация миграций
-    app.migrations.add(CreateChat())
+public func configure(_ app: Application) throws {
+    app.databases.use(.postgres(
+        hostname: "localhost",
+        port: 5432,
+        username: "postgres",
+        password: "0000",
+        database: "edelweiss_chat"
+    ), as: .psql)
 
-    // Применение миграций
-    try await app.autoMigrate()
-    
-    // Регистрация контроллеров
-    try app.register(collection: ChatController())
+    app.migrations.add(CreateChat(), CreateMessage())
+    try app.autoMigrate().wait()
+
+    try routes(app)
 }
