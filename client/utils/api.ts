@@ -6,8 +6,8 @@ export const API_URL = "http://127.0.0.1:8080/chats";
 // Получить список чатов
 export const fetchChats = async (): Promise<Chat[]> => {
   try {
-    const response = await axios.get(API_URL);
-    return response.data;
+    const { data } = await axios.get(API_URL);
+    return data;
   } catch (error) {
     throw new Error("Ошибка при загрузке чатов");
   }
@@ -16,8 +16,12 @@ export const fetchChats = async (): Promise<Chat[]> => {
 // Создать новый чат
 export const createChat = async (title: string) => {
   try {
-    const response = await axios.post(API_URL, { title });
-    return response.data;
+    const createdAt = new Date()
+      .toLocaleString("sv-SE", { timeZoneName: "short" })
+      .replace(" ", "T"); // Пример: "2025-02-17T15:30:00+03"
+
+    const { data } = await axios.post(API_URL, { title, createdAt }); // Добавили createdAt
+    return data;
   } catch (error) {
     throw new Error("Ошибка при создании чата");
   }
@@ -35,11 +39,11 @@ export const deleteChat = async (id: string) => {
 // Отправить сообщение в чат
 export const sendMessage = async (chatId: string, content: string) => {
   try {
-    const response = await axios.post(`${API_URL}/${chatId}/messages`, {
+    const { data } = await axios.post(`${API_URL}/${chatId}/messages`, {
       chatId,
       content,
     });
-    return response.data;
+    return data;
   } catch (error) {
     throw new Error("Ошибка при отправке сообщения");
   }
@@ -48,8 +52,8 @@ export const sendMessage = async (chatId: string, content: string) => {
 // Получить все сообщения из чата
 export const getMessages = async (chatId: string) => {
   try {
-    const response = await axios.get(`${API_URL}/${chatId}/messages`);
-    return response.data;
+    const { data } = await axios.get(`${API_URL}/${chatId}/messages`);
+    return data;
   } catch (error) {
     throw new Error("Ошибка при загрузке сообщений");
   }
