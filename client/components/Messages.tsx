@@ -1,88 +1,45 @@
-import { Chat } from "@/types/chatInterface";
-import { getMessages, sendMessage } from "@/utils/api";
-import React, {
-  Dispatch,
-  FC,
-  JSX,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
-
-interface MessagesProps {
-  chats: Chat[];
-  activeChat: number | null;
-  setChats: Dispatch<SetStateAction<Chat[]>>;
-}
+import React, { FC, useEffect, useMemo, JSX } from "react";
+import { MessagesProps } from "@/types/chatInterface";
+import { getMessages } from "@/utils/api";
+import MessageInput from "@/UI/MessageInput";
 
 const Messages: FC<MessagesProps> = (props): JSX.Element => {
   const { chats, activeChat, setChats } = props;
 
-  const [message, setMessage] = useState("");
+  const activeChatData = useMemo(
+    () => chats.find((chat) => chat.id === activeChat),
+    [chats, activeChat]
+  );
 
   useEffect(() => {
-    const loadMessages = async () => {
-      if (activeChat) {
-        const messagesData = await getMessages(String(activeChat));
-        setChats((prevChats) =>
-          prevChats.map((chat) =>
-            chat.id === activeChat ? { ...chat, messages: messagesData } : chat
-          )
-        );
-      }
-    };
+    if (!activeChat) return;
 
-    loadMessages();
-  }, [activeChat]);
-
-  const handleSendMessage = async () => {
-    if (!message.trim() || activeChat === null) return;
-
-    try {
-      const newMessage = await sendMessage(String(activeChat), message);
-
+    (async () => {
+      const messagesData = await getMessages(String(activeChat));
       setChats((prevChats) =>
         prevChats.map((chat) =>
-          chat.id === activeChat
-            ? { ...chat, messages: [...chat.messages, newMessage] }
-            : chat
+          chat.id === activeChat ? { ...chat, messages: messagesData } : chat
         )
       );
-      setMessage("");
-    } catch (error) {
-      console.error("Ошибка при отправке сообщения", error);
-    }
-  };
+    })();
+  }, [activeChat, setChats]);
 
   return (
     <div className="flex-1 flex flex-col p-4">
-      {activeChat !== null ? (
+      {activeChatData ? (
         <div className="flex flex-col h-full border p-2">
           <div className="flex-1 overflow-auto">
-            {chats
-              .find((chat) => chat.id === activeChat)
-              ?.messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`p-2 ${msg.isError ? "text-red-500" : ""}`}
-                >
-                  {msg.text}
-                </div>
-              ))}
+            {activeChatData.messages?.map((msg, index) => (
+              <div
+                key={index}
+                className={`p-2 ${msg.isError ? "text-red-500" : "text-white"}`}
+              >
+                {msg.content}
+              </div>
+            ))}
           </div>
           <div className="flex p-2 border-t">
-            <input
-              className="flex-1 border p-2"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Введите сообщение"
-            />
-            <button
-              onClick={handleSendMessage}
-              className="bg-green-500 text-white p-2 ml-2"
-            >
-              Send
-            </button>
+            <MessageInput setChats={setChats} activeChat={activeChat} />
           </div>
         </div>
       ) : (
