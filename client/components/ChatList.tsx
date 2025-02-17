@@ -1,17 +1,8 @@
-"use client";
-
-import { Dispatch, FC, JSX, SetStateAction, useEffect } from "react";
+import { FC, JSX, useEffect } from "react";
 import { fetchChats } from "@/utils/api";
 import { deleteChat as deleteChatApi } from "@/utils/api";
-import { Chat } from "@/types/chatInterface";
-import { XMarkIcon } from "@heroicons/react/16/solid";
-
-interface ChatListProps {
-  chats: Chat[];
-  setChats: Dispatch<SetStateAction<Chat[]>>;
-  activeChat: number | null;
-  setActiveChat: Dispatch<SetStateAction<number | null>>;
-}
+import { ChatListProps } from "@/types/chatInterface";
+import ChatItem from "@/UI/ChatItem";
 
 const ChatList: FC<ChatListProps> = (props): JSX.Element => {
   const { chats, setChats, activeChat, setActiveChat } = props;
@@ -38,23 +29,16 @@ const ChatList: FC<ChatListProps> = (props): JSX.Element => {
   };
 
   return (
-    <div className="w-1/4 border-r p-2">
+    <div className="p-2 flex flex-col gap-4">
       {chats.map((chat) => (
         <div
           key={chat.id}
           className={`flex justify-between p-2 border cursor-pointer ${
-            activeChat === chat.id ? "bg-gray-300" : ""
+            activeChat === chat.id ? "bg-gray-600" : ""
           }`}
           onClick={() => setActiveChat(chat.id)}
         >
-          {chat.title}
-          <XMarkIcon
-            className="h-5 w-5 text-red-500"
-            onClick={(e) => {
-              e.stopPropagation();
-              deleteChat(chat.id);
-            }}
-          />
+          <ChatItem chat={chat} deleteChat={deleteChat} />
         </div>
       ))}
     </div>
