@@ -1,5 +1,5 @@
 {
-  "originHash" : "c68f70d9db8158500920526a5c4aa9f7a8b3bb6ef4581b330e1c23c935d030f8",
+  "originHash" : "a157065697ac25f2b25ee350ef29af259bc44b2cce6d1ffcbcd860e17da081eb",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -150,8 +150,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-crypto.git",
       "state" : {
-        "revision" : "b828ba476ab068f0b00d6b41f92f364961b0f323",
-        "version" : "3.10.2"
+        "revision" : "b6049c0b2efdcea34d5fc2c0e28d9d79320163ba",
+        "version" : "3.11.0"
       }
     },
     {
@@ -160,6 +160,15 @@
       "location" : "https://github.com/apple/swift-distributed-tracing.git",
       "state" : {
         "revision" : "a64a0abc2530f767af15dd88dda7f64d5f1ff9de",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "swift-http-structured-headers",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-http-structured-headers.git",
+      "state" : {
+        "revision" : "d01361d32e14ae9b70ea5bd308a3794a198a2706",
         "version" : "1.2.0"
       }
     },
@@ -204,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-extras.git",
       "state" : {
-        "revision" : "2e9746cfc57554f70b650b021b6ae4738abef3e6",
-        "version" : "1.24.1"
+        "revision" : "00f3f72d2f9942d0e2dc96057ab50a37ced150d4",
+        "version" : "1.25.0"
       }
     },
     {
