@@ -30,7 +30,7 @@ export const createChat = async (title: string) => {
 // Удалить чат
 export const deleteChat = async (id: string) => {
   try {
-    await axios.delete(`${API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id.toLowerCase()}`);
   } catch (error) {
     throw new Error("Ошибка при удалении чата");
   }
