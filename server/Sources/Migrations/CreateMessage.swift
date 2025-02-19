@@ -7,10 +7,10 @@ struct CreateMessage: Migration {
             .field("content", .string, .required)
             .field("created_at", .datetime, .required)
             .field("chat_id", .uuid, .required, .references("chats", "id"))
-            .create() // Создаем таблицу с указанными полями
+            .create() 
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("messages").delete() // Удаляем таблицу сообщений
+        database.schema("messages").delete()
     }
 }
