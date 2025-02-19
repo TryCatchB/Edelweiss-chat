@@ -1,4 +1,4 @@
-import { FC, JSX, useEffect } from "react";
+import { FC, JSX, useCallback, useEffect } from "react";
 import { fetchChats } from "@/utils/api";
 import { deleteChat as deleteChatApi } from "@/utils/api";
 import { ChatListProps } from "@/types/chatInterface";
@@ -16,17 +16,20 @@ const ChatList: FC<ChatListProps> = (props): JSX.Element => {
     getChats();
   }, []);
 
-  const deleteChat = async (id: number) => {
-    try {
-      await deleteChatApi(id.toString());
+  const deleteChat = useCallback(
+    async (id: number) => {
+      try {
+        await deleteChatApi(id.toString());
 
-      setChats(chats.filter((chat) => chat.id !== id));
+        setChats((prevChats) => prevChats.filter((chat) => chat.id !== id));
 
-      if (activeChat === id) setActiveChat(null);
-    } catch (error) {
-      console.error("Ошибка при удалении чата:", error);
-    }
-  };
+        if (activeChat === id) setActiveChat(null);
+      } catch (error) {
+        console.error("Ошибка при удалении чата:", error);
+      }
+    },
+    [activeChat, setChats, setActiveChat]
+  );
 
   return (
     <div className="p-2 flex flex-col gap-4">
