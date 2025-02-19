@@ -24,20 +24,25 @@ struct ChatController: RouteCollection {
     }
 
     // Функция для удаления чата по id
-    func delete(req: Request) async throws -> HTTPStatus {
-        // Извлекаем id чата из параметров URL
-        guard let chatID = req.parameters.get("id", as: UUID.self) else {
-            throw Abort(.badRequest, reason: "Invalid chat id")
-        }
-
-        // Пытаемся найти чат в базе данных
-        if let chat = try await Chat.find(chatID, on: req.db) {
-            // Если чат найден, удаляем его
-            try await chat.delete(on: req.db)
-            return .noContent // Возвращаем 204 No Content, если удаление успешно
-        } else {
-            // Если чат не найден, возвращаем ошибку
-            throw Abort(.notFound, reason: "Chat not found")
-        }
+func delete(req: Request) async throws -> HTTPStatus {
+    // Получаем chatID из параметров
+    guard let chatID = req.parameters.get("id", as: UUID.self) else {
+        throw Abort(.badRequest, reason: "Invalid chat id")
     }
+
+    // Находим чат в базе
+    guard let chat = try await Chat.find(chatID, on: req.db) else {
+        throw Abort(.notFound, reason: "Chat not found")
+    }
+
+    // Удаляем сначала все сообщения, связанные с чатом
+    try await Message.query(on: req.db)
+        .filter(\.$chatId == chatID) // Фильтруем сообщения по chatID
+        .delete()
+
+    // Теперь можно удалить сам чат
+    try await chat.delete(on: req.db)
+
+    return .noContent // Возвращаем 204 No Content
+}
 }
