@@ -6,7 +6,7 @@ struct MessageController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let messages = routes.grouped("chats", ":chatId", "messages")
         messages.post(use: create)
-        messages.get(use: getAllMessages) 
+        messages.get(use: getAllMessages)
         messages.post("ai", use: sendMessageToAI)
     }
 
@@ -17,24 +17,31 @@ struct MessageController: RouteCollection {
             throw Abort(.notFound, reason: "Чат не найден")
         }
 
+        // Получаем историю чата из базы данных
         let messages = try await Message.query(on: req.db)
-            .filter(\.$chatId == requestData.chatId)
-            .sort(\.$createdAt, .ascending)
+            .filter(\.$chatId == requestData.chatId)  // Здесь используется правильный фильтр
+            .sort(\.$createdAt, .ascending)  // Используем правильное поле для сортировки
             .all()
 
+        // Преобразуем историю сообщений в формат OpenAI
         var chatHistory: [[String: String]] = messages.map { msg in
-            ["role": "user", "content": msg.content]
+            let role = msg.isUserMessage ? "user" : "assistant"
+            return ["role": role, "content": msg.content]
         }
+        
+        // Добавляем текущее сообщение пользователя
         chatHistory.append(["role": "user", "content": requestData.content])
 
+        // Отправляем запрос в OpenAI
         let openAIRequest = OpenAIRequest(model: "gpt-3.5-turbo", messages: chatHistory, max_tokens: 150)
-
         let aiResponse = try await callOpenAI(req: req, request: openAIRequest)
 
-        let userMessage = Message(content: requestData.content, createdAt: Date(), chatId: requestData.chatId)
+        // Сохраняем сообщение пользователя в базе данных
+        let userMessage = Message(content: requestData.content, createdAt: Date(), chatId: requestData.chatId, isUserMessage: true)
         try await userMessage.save(on: req.db)
 
-        let aiMessage = Message(content: aiResponse, createdAt: Date(), chatId: requestData.chatId)
+        // Сохраняем ответ AI в базе данных
+        let aiMessage = Message(content: aiResponse, createdAt: Date(), chatId: requestData.chatId, isUserMessage: false)
         try await aiMessage.save(on: req.db)
 
         return aiMessage
@@ -71,7 +78,7 @@ struct MessageController: RouteCollection {
             throw Abort(.notFound, reason: "Chat not found")
         }
 
-        let message = Message(content: messageData.content, createdAt: Date(), chatId: messageData.chatId)
+        let message = Message(content: messageData.content, createdAt: Date(), chatId: messageData.chatId, isUserMessage: true)
         try await message.save(on: req.db)
 
         return message
@@ -83,12 +90,13 @@ struct MessageController: RouteCollection {
         }
 
         return try await Message.query(on: req.db)
-            .filter(\.$chatId == chatId)
-            .sort(\.$createdAt, .ascending)
+            .filter(\.$chatId == chatId)  // Здесь используется правильный фильтр
+            .sort(\.$createdAt, .ascending)  // Используем правильное поле для сортировки
             .all()
     }
 }
 
+// Модели данных для работы с OpenAI API
 struct OpenAIRequest: Content {
     var model: String
     var messages: [[String: String]]
@@ -108,6 +116,7 @@ struct MessageContent: Content {
     var content: String
 }
 
+// Запрос на создание сообщения
 struct CreateMessageRequest: Content {
     var chatId: UUID
     var content: String
