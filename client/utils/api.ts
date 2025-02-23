@@ -38,23 +38,25 @@ export const deleteChat = async (id: string) => {
 
 // Отправить сообщение в чат
 export const sendMessage = async (chatId: string, content: string) => {
-  try {
-    const { data } = await axios.post(`${API_URL}/${chatId}/messages`, {
-      chatId,
-      content,
-    });
-    return data;
-  } catch (error) {
+  const response = await fetch(`/chats/${chatId}/messages/ai`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ chatId, content }),
+  });
+
+  if (!response.ok) {
     throw new Error("Ошибка при отправке сообщения");
   }
+
+  return await response.json();
 };
 
-// Получить все сообщения из чата
 export const getMessages = async (chatId: string) => {
-  try {
-    const { data } = await axios.get(`${API_URL}/${chatId}/messages`);
-    return data;
-  } catch (error) {
-    throw new Error("Ошибка при загрузке сообщений");
+  const response = await fetch(`/chats/${chatId.toLowerCase()}/messages`);
+  if (!response.ok) {
+    throw new Error("Ошибка при получении сообщений");
   }
+  return await response.json();
 };
