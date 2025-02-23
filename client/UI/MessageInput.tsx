@@ -11,13 +11,22 @@ const MessageInput: FC<MessageInputProps> = (props): JSX.Element => {
 
     try {
       const newMessage = await sendMessage(String(activeChat), message);
+
       setChats((prevChats) =>
         prevChats.map((chat) =>
           chat.id === activeChat
-            ? { ...chat, messages: [...(chat.messages ?? []), newMessage] }
+            ? {
+                ...chat,
+                messages: [
+                  ...(chat.messages ?? []),
+                  { role: "user", content: message },
+                  newMessage,
+                ],
+              }
             : chat
         )
       );
+
       setMessage("");
     } catch (error) {
       console.error("Ошибка при отправке сообщения", error);
@@ -25,7 +34,7 @@ const MessageInput: FC<MessageInputProps> = (props): JSX.Element => {
   };
 
   return (
-    <>
+    <div className="flex">
       <input
         className="flex-1 border p-2 text-black"
         value={message}
@@ -38,7 +47,7 @@ const MessageInput: FC<MessageInputProps> = (props): JSX.Element => {
       >
         Send
       </button>
-    </>
+    </div>
   );
 };
 
