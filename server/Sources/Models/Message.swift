@@ -10,18 +10,22 @@ final class Message: Model, Content {
     @Field(key: "content")
     var content: String
 
-    @Field(key: "created_at")
+    @Field(key: "createdAt")
     var createdAt: Date
 
-    @Field(key: "chat_id")
+    @Field(key: "chatId")
     var chatId: UUID
 
-    init() { }
+    @Field(key: "isUserMessage")
+    var isUserMessage: Bool
 
-    init(id: UUID? = nil, content: String, createdAt: Date = Date(), chatId: UUID) {
+    init() {}
+
+    init(id: UUID? = nil, content: String, createdAt: Date, chatId: UUID, isUserMessage: Bool) {
         self.id = id
         self.content = content
         self.createdAt = createdAt
         self.chatId = chatId
+        self.isUserMessage = isUserMessage
     }
 }
